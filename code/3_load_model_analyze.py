@@ -11,6 +11,8 @@ plt.rcParams.update({'font.size': 24})
 output_folder = '190827'
 mode = ["walk","bus","ride hailing","drive","AV"]
 variables = ['av_cost ($)', 'av_waittime (min)', 'av_ivt (min)', 'age', 'monthly income ($1000)']
+
+# load the models saved by the parameters
 params = pd.read_csv("params_to_load.csv")
 params = np.array(params)
 

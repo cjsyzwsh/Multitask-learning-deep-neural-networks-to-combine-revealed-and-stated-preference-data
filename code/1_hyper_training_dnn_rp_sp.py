@@ -111,6 +111,8 @@ if __name__ == '__main__':
     N_sp = X_sp_train.shape[0]
     K_sp = 5
 
+
+    # method 1: break the search space down into 4 parts
     '''
     # 1st quarter
     L_M_share = [1, 5]
@@ -143,7 +145,12 @@ if __name__ == '__main__':
     L_l_shared = [1e-20, 1e-4, 1e-2, 5e-1]
     L_l_rp_sp = [1e-20, 1e-4, 1e-2, 5e-1]
     L_l_sp = [1e-20, 1e-4, 1e-2, 5e-1]
+    
+    parameters = [L_M_share, L_M_specific, L_n_hidden, L_l_shared, L_l_rp_sp, L_l_sp]
+    parameters_torun = list(itertools.product(*parameters))
     '''
+
+    # method 2: search the full space (except the parameters that we have already searched for)
     '''
     # all
     L_M_share = [1, 2, 3, 4, 5]
@@ -179,10 +186,10 @@ if __name__ == '__main__':
     print(len(results_prev))
     print(len(params_torun))
     '''
-
+    # method 3: load parameters from csv
     params_torun = np.array(pd.read_csv("params_to_run.csv"))
-    parameters = [(Y_rp_train, Y_rp_test, Y_sp_train, Y_sp_test, X_rp_train, X_rp_test, X_sp_train, X_sp_test) + tuple(x) for x in params_torun]
 
+    parameters = [(Y_rp_train, Y_rp_test, Y_sp_train, Y_sp_test, X_rp_train, X_rp_test, X_sp_train, X_sp_test) + tuple(x) for x in params_torun]
     if not os.path.exists("temp_result.txt"):
         outfile = open('temp_result.txt', 'a')
         outfile.write("# shared layers,# specific layers,# hidden units,l_shared,l_rp_sp,l_sp,tr_rp_accuracy, tr_sp_accuracy, tr_overall_accuracy, rp_accuracy,sp_accuracy,overall_accuracy,temperature\n")
@@ -191,12 +198,10 @@ if __name__ == '__main__':
     p = multiprocessing.Pool(5)
     f = p.map(train_nn, parameters)
 
-    '''
     f = np.array(f).T
 
     export = pd.DataFrame(np.insert(f, 0, np.array(params_torun).T, axis=0).T, \
                           columns=['# shared layers','# specific layers','# hidden units','l_shared','l_rp_sp','l_sp', \
                                    'tr_rp_accuracy','tr_sp_accuracy','tr_overall_accuracy','rp_accuracy','sp_accuracy', \
                                    'overall_accuracy','temperature'])
-    export.to_csv("results_03.csv", index=False)
-    '''
+    export.to_csv("results.csv", index=False)
